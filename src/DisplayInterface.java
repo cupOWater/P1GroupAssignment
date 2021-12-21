@@ -3,21 +3,21 @@ import java.util.Collections;
 import java.util.Scanner;
 
 public abstract class DisplayInterface {
-    ArrayList<Integer> sumDat;
+    Summary sumDat;
     final int groupNo;
 
-    public DisplayInterface(ArrayList<Integer> sumDat){
+    public DisplayInterface(Summary sumDat){
         this.sumDat = sumDat;
-        this.groupNo = sumDat.size();
+        this.groupNo = sumDat.groups.size();
     }
 
-    static public DisplayInterface setDisplayType(ArrayList<Integer> sumDat){
+    static public DisplayInterface setDisplayType(Summary sumDat){
         Scanner displayScanner = new Scanner(System.in);
         System.out.println("""
                 Please select a display option:
                 \t1. Tabular Display
-                \t2. Chart Display
-                """);
+                \t2. Chart Display""");
+        System.out.print(">>> ");
         int choice = displayScanner.nextInt();
 
         while (true){
@@ -27,6 +27,7 @@ public abstract class DisplayInterface {
                 return new Chart(sumDat);
             }
             System.out.println("Invalid option, please choose again:");
+            System.out.print(">>> ");
             choice = displayScanner.nextInt();
         }
     }
@@ -37,7 +38,7 @@ public abstract class DisplayInterface {
 class Table extends  DisplayInterface{
     private final int cellWidth = 30;
 
-    protected Table(ArrayList<Integer> sumDat) {
+    protected Table(Summary sumDat) {
         super(sumDat);
     }
 
@@ -45,7 +46,7 @@ class Table extends  DisplayInterface{
     public void displayData() {
         displayHeader();
         for (int i = 0; i < groupNo; i++){
-            System.out.printf("|%-" + cellWidth + "s|%-" + cellWidth + "s|\n", "", " " + sumDat.get(i));
+            System.out.printf("|%-" + cellWidth + "s|%-" + cellWidth + "s|\n", " " + sumDat.groups.get(i), " " + sumDat.groupsResult.get(i));
         }
     }
 
@@ -59,7 +60,7 @@ class Chart extends  DisplayInterface{
     private final int rows = 24;
     private final int cols = 80;
 
-    protected Chart(ArrayList<Integer> sumDat) {
+    protected Chart(Summary sumDat) {
         super(sumDat);
     }
 
@@ -67,7 +68,7 @@ class Chart extends  DisplayInterface{
     public void displayData() {
         // Displaying the data in chart form. Row 23 = 0// row 0 = max value
 
-        ArrayList<Integer[]> valuePos = getValuePos(sumDat);
+        ArrayList<Integer[]> valuePos = getValuePos(sumDat.groupsResult);
         for (int row = 0; row < rows; row++){
             System.out.print("|");
 
