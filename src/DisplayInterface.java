@@ -1,14 +1,34 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Scanner;
 
 public abstract class DisplayInterface {
-    protected ArrayList<Integer> sumDat;
-    protected final int groupNo;
+    ArrayList<Integer> sumDat;
+    final int groupNo;
 
     public DisplayInterface(ArrayList<Integer> sumDat){
         this.sumDat = sumDat;
         this.groupNo = sumDat.size();
+    }
+
+    static public DisplayInterface setDisplayType(ArrayList<Integer> sumDat){
+        Scanner displayScanner = new Scanner(System.in);
+        System.out.println("""
+                Please select a display option:
+                \t1. Tabular Display
+                \t2. Chart Display
+                """);
+        int choice = displayScanner.nextInt();
+
+        while (true){
+            if (choice == 1){
+                return new Table(sumDat);
+            } else if (choice == 2) {
+                return new Chart(sumDat);
+            }
+            System.out.println("Invalid option, please choose again:");
+            choice = displayScanner.nextInt();
+        }
     }
 
     abstract void displayData();
@@ -17,7 +37,7 @@ public abstract class DisplayInterface {
 class Table extends  DisplayInterface{
     private final int cellWidth = 30;
 
-    public Table(ArrayList<Integer> sumDat) {
+    protected Table(ArrayList<Integer> sumDat) {
         super(sumDat);
     }
 
@@ -39,7 +59,7 @@ class Chart extends  DisplayInterface{
     private final int rows = 24;
     private final int cols = 80;
 
-    public Chart(ArrayList<Integer> sumDat) {
+    protected Chart(ArrayList<Integer> sumDat) {
         super(sumDat);
     }
 
@@ -87,7 +107,6 @@ class Chart extends  DisplayInterface{
 
     private ArrayList<Integer[]> getValuePos(ArrayList<Integer> valList){
         // get the index for row and column to display as chart
-        System.out.println((cols - 1f) / (groupNo));
         int dataInterval = Math.round((cols - 1f) / (groupNo));
         int currentCol = Math.round(dataInterval / 2f);
         int maxValue = Collections.max(valList);
