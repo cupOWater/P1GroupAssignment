@@ -7,6 +7,7 @@ public class Summary {
     private Group group;
     private Metric metric;
     private ResultType resultType;
+    private boolean isAccumulated;
 
     ArrayList<Integer> groupsResult = new ArrayList<>();
     // This ArrayList to store the calculated data of each group
@@ -30,12 +31,15 @@ public class Summary {
             ArrayList<Integer> dataArray = newSummary.getMetric().getData(data);
             LocalDate groupStart = LocalDate.parse(tokens[0], dateFormat);
             LocalDate groupEnd = LocalDate.parse(tokens[1], dateFormat);
-            int groupResult = newSummary.getResultType().CalculateGroup(groupStart, groupEnd, dataArray, data);
+            int groupResult = newSummary.getResultType().CalculateGroup(groupStart, groupEnd, dataArray, data, newSummary);
             newSummary.groupsResult.add(i, groupResult);
         }
         return newSummary;
     }
 
+    public boolean getIsAccumulated() {
+        return isAccumulated;
+    }
 
     public Group getGroup() {
         return group;
@@ -97,13 +101,19 @@ public class Summary {
 
         while (true) {
             if (intArrayCheck(selection, new int[]{1, 2, 3})) {
-                if (selection.equals("1"))
+                if (selection.equals("1")) {
                     this.metric = new PositiveCases();
-                else if (selection.equals("2"))
+                    this.isAccumulated = false;
+                }
+                else if (selection.equals("2")) {
                     this.metric = new Deaths();
-                else
+                    this.isAccumulated = false;
+                }
+                else {
                     this.metric = new Vaccinated();
-                break;
+                    this.isAccumulated = true;
+                }
+                    break;
             } else {
                 System.out.println("-------------------");
                 System.out.println("""
@@ -189,7 +199,7 @@ abstract class Group {
     abstract void groupDetail(Summary summary,Data data);
     // This method to get the detail information of each group type
 
-    void groupDevice(int groupsNum, Summary summary, Data data) {
+    void groupDivide(int groupsNum, Summary summary, Data data) {
         // This method to divide days into groups for the NumberOfGroups and NumberOfDays group types
         // And then add the pair of start date and end date of each group to the groups ArrayList of Summary instance
 
@@ -238,7 +248,7 @@ class NoGroup extends Group {
     void groupDetail(Summary summary,Data data) {
         // NoGroup group type does not have any further information
         // Then just divide the same number of days into that number of groups
-        groupDevice(data.range.size(), summary, data);
+        groupDivide(data.range.size(), summary, data);
     }
 }
 
@@ -277,7 +287,7 @@ class NumberOfGroups extends Group {
 
         groupsNum = Integer.parseInt(groupNumberInput(data));
 
-        groupDevice(groupsNum, summary, data);
+        groupDivide(groupsNum, summary, data);
     }
 }
 
@@ -329,7 +339,7 @@ class NumberOfDays extends Group {
         int daysPerGroup = Integer.parseInt(dayNumberInput(data));
         groupsNum = data.range.size() / daysPerGroup;
 
-        groupDevice(groupsNum, summary, data);
+        groupDivide(groupsNum, summary, data);
     }
 }
 
@@ -353,7 +363,7 @@ class Vaccinated extends Metric{
 
     @Override
     ArrayList<Integer> getData(Data data){
-        return data.newDeath;
+        return data.peopleVacinated;
     }
 }
 
@@ -362,13 +372,14 @@ class Deaths extends Metric{
 
     @Override
     ArrayList<Integer> getData(Data data){
-        return data.peopleVacinated;
+        return data.newDeath;
     }
 }
 
 
 abstract class ResultType{
-    abstract int CalculateGroup(LocalDate groupStartDate, LocalDate groupEndDate, ArrayList<Integer> array, Data data);
+    abstract int CalculateGroup(LocalDate groupStartDate, LocalDate groupEndDate, ArrayList<Integer> array, Data data,
+                                Summary sum);
     // This method to calculate the data of each group
 }
 
@@ -376,34 +387,57 @@ class NewTotal extends ResultType {
     // This class to identify the NewTotal type of ResultType class
 
     @Override
-    int CalculateGroup(LocalDate groupStartDate, LocalDate groupEndDate, ArrayList<Integer> array, Data data) {
+    int CalculateGroup(LocalDate groupStartDate, LocalDate groupEndDate, ArrayList<Integer> array, Data data,
+                       Summary sum) {
         // This method will calculate the data in the way of new total of a group
 
-        int result = 0;
-        for (int i = 0; i < data.date.size(); i++) {
-            if ((data.date.get(i).isEqual(groupStartDate) || data.date.get(i).isAfter(groupStartDate)) &&
-                    (data.date.get(i).isEqual(groupEndDate) || data.date.get(i).isBefore(groupEndDate))) {
-                result += array.get(i);
+        if (!sum.getIsAccumulated()) {
+            int result = 0;
+            for (int i = 0; i < data.date.size(); i++) {
+                if ((data.date.get(i).isEqual(groupStartDate) || data.date.get(i).isAfter(groupStartDate)) &&
+                        (data.date.get(i).isEqual(groupEndDate) || data.date.get(i).isBefore(groupEndDate))) {
+                    result += array.get(i);
+                }
             }
+            return result;
         }
-        return result;
+        else{
+            int start = 0, end = 0;
+            for (int i = 0; i < data.date.size(); i++) {
+                if (data.date.get(i).isEqual(groupStartDate))
+                    start = array.get(i);
+                else if (data.date.get(i).isEqual(groupEndDate))
+                    end = array.get(i);
+            }
+            return end - start;
+        }
     }
 }
 
-class UpTo extends ResultType{
+class UpTo extends ResultType {
     // This class to identify the UpTo type of ResultType class
 
     @Override
-    int CalculateGroup(LocalDate groupStartDate, LocalDate groupEndDate, ArrayList<Integer> array, Data data){
+    int CalculateGroup(LocalDate groupStartDate, LocalDate groupEndDate, ArrayList<Integer> array, Data data,
+                       Summary sum) {
         // This method will calculate the data in the way of up to the end date of a group
 
-        int result = 0;
-        for(int i = 0; i < data.date.size(); i++){
-            if(data.date.get(i).isEqual(groupEndDate) || data.date.get(i).isBefore(groupEndDate)){
-                result += array.get(i);
+        if (!sum.getIsAccumulated()) {
+            int result = 0;
+            for (int i = 0; i < data.date.size(); i++) {
+                if (data.date.get(i).isEqual(groupEndDate) || data.date.get(i).isBefore(groupEndDate)) {
+                    result += array.get(i);
+                }
             }
+            return result;
+        } else {
+            int result = 0;
+            for (int i = 0; i < data.date.size(); i++) {
+                if (data.date.get(i).isEqual(groupEndDate))
+                    result = array.get(i);
+            }
+            return result;
         }
-        return result;
     }
 }
 
