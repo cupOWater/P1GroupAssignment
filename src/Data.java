@@ -7,28 +7,28 @@ import java.time.format.*;
 import java.util.ArrayList;  
 
 public class Data {
-    ArrayList<LocalDate> range = new ArrayList<LocalDate>();
-    ArrayList<LocalDate> date = new ArrayList<LocalDate>();
-    ArrayList<Integer> newCase = new ArrayList<Integer>();
-    ArrayList<Integer> newDeath = new ArrayList<Integer>();
-    ArrayList<Integer> peopleVacinated = new ArrayList<Integer>();
+    ArrayList<LocalDate> range = new ArrayList<>();
+    ArrayList<LocalDate> date = new ArrayList<>();
+    ArrayList<Integer> newCase = new ArrayList<>();
+    ArrayList<Integer> newDeath = new ArrayList<>();
+    ArrayList<Integer> peopleVacinated = new ArrayList<>();
+    DateTimeFormatter df = DateTimeFormatter.ofPattern("M/d/yyyy");
+    LocalDate startDate;
+    LocalDate endDate;
+    Scanner sc = new Scanner(System.in);
 
-    public static Data selectNewData(String filePath) throws IOException {
-        Data newData = new Data();
-        Scanner scanner = new Scanner(System.in);
-
-        readData(newData, filePath);
-
-        return newData;
+    public Data(String filePath) throws IOException {
+        readData(filePath);
+        this.startDate = date.get(0);
+        this.endDate = date.get(date.size() - 1);
+        getDateRange();
     }
 
-    static void readData(Data data, String filePath) throws IOException {
-        DateTimeFormatter df = DateTimeFormatter.ofPattern("M/d/yyyy");
-        Scanner locInput = new Scanner(System.in);
+    private void readData(String filePath) throws IOException {
         BufferedReader csvReader;
 
         System.out.println("Enter name of country or continent: ");
-        String location = locInput.nextLine();
+        String location = sc.nextLine();
 
         csvReader = new BufferedReader(new FileReader(filePath));
         boolean found = false;
@@ -41,113 +41,140 @@ public class Data {
 
             if (rawDat[2].equals(location)){
                 found = true;
-                data.date.add(LocalDate.parse(rawDat[3], df));
+                date.add(LocalDate.parse(rawDat[3], df));
 
                 try {
-                    data.newCase.add(Integer.parseInt(rawDat[4]));
+                    newCase.add(Integer.parseInt(rawDat[4]));
                 }
                 catch (NumberFormatException e){
-                    data.newCase.add(0);
+                    newCase.add(0);
                 }
 
                 try {
-                    data.newDeath.add(Integer.parseInt(rawDat[5]));
+                    newDeath.add(Integer.parseInt(rawDat[5]));
                 }
                 catch (NumberFormatException e){
-                    data.newDeath.add(0);
+                    newDeath.add(0);
                 }
 
                 if(!rawDat[6].equals("")){
                     currentVacc = Integer.parseInt(rawDat[6]);
                 }
-                data.peopleVacinated.add(currentVacc);
+                peopleVacinated.add(currentVacc);
             }
             row = csvReader.readLine();
         }
 
         if (!found){
             System.out.println("Country/ Continent not found");
+            readData(filePath);
         }
         csvReader.close();
     }
 
-}
+    private void getDateRange(){
 
-//abstract class DataReader {
-//    // Data object that needed to be written into
-//    Data data;
-//
-//    static String filePath = "covid-data.csv";
-//    static DateTimeFormatter df = DateTimeFormatter.ofPattern("M/d/yyyy");
-//
-//    Scanner locInput = new Scanner(System.in);
-//    BufferedReader csvReader;
-//
-//    abstract void readData(Data data) throws IOException;
-//
-//}
-//
-//class ContinentReader extends DataReader{
-//
-//    @Override
-//    void readData(Data data) throws IOException {
-//        System.out.println("Select a continent:");
-//        String continent = locInput.nextLine();
-//        csvReader = new BufferedReader(new FileReader(filePath));
-//
-//        while (csvReader.readLine() != null){
-//            String[] rawDat = csvReader.readLine().split(",");
-//            if (rawDat[1].equals(continent)){
-//
-//            }
-//        }
-//        csvReader.close();
-//    }
-//}
-//
-//class CountryReader extends DataReader{
-//
-//    @Override
-//    void readData(Data data) throws IOException {
-//        System.out.println("Select a country:");
-//        String country = locInput.nextLine();
-//        csvReader = new BufferedReader(new FileReader(filePath));
-//        boolean found = false;
-//        int currentVacc = 0;
-//
-//        String row = csvReader.readLine();
-//        while(row != null){
-//            String[] rawDat = row.split(",");
-//
-//            if (rawDat[2].equals(country)){
-//                found = true;
-//                data.date.add(LocalDate.parse(rawDat[3], df));
-//
-//                try {
-//                    data.newCase.add(Integer.parseInt(rawDat[4]));
-//                }
-//                catch (NumberFormatException e){
-//                    data.newCase.add(0);
-//                }
-//
-//                try {
-//                    data.newDeath.add(Integer.parseInt(rawDat[5]));
-//                }
-//                catch (NumberFormatException e){
-//                    data.newDeath.add(0);
-//                }
-//
-//                if(!rawDat[6].equals("")){
-//                    currentVacc = Integer.parseInt(rawDat[6]);
-//                }
-//                data.peopleVacinated.add(currentVacc);
-//            }
-//            row = csvReader.readLine();
-//        }
-//
-//        if (!found){
-//            System.out.println("Country not found");
-//        }
-//        csvReader.close();
-//    }
-//}
+        System.out.printf("""
+                Enter date range options (%s - %s) format MM/DD/YYYY:
+                \t1. Choosing 2 dates
+                \t2. Choosing number of days/ weeks from a date
+                \t3. Choosing number of days/ weeks to a date
+                >>>\040""", startDate.format(df), endDate.format(df));
+        String choice = sc.nextLine();
+
+        switch (choice) {
+            case "1" ->
+                    {
+                        System.out.print("Start date: ");
+                        LocalDate startDate = inputDate();
+                        System.out.print("End date: ");
+                        LocalDate endDate = inputDate();
+                        if (startDate.isAfter(endDate)){
+                            System.out.println("Start date is after end date");
+                            getDateRange();
+                        }
+                        setDateRange(startDate, endDate);
+                    }
+            case "2" -> fromDate();
+            case "3" -> toDate();
+            default -> {
+                System.out.println("Invalid choice");
+                getDateRange();
+            }
+        }
+
+    }
+
+    private void setDateRange(LocalDate start, LocalDate end){
+        while (!start.equals(end.plusDays(1))){
+            range.add(start);
+            start = start.plusDays(1);
+        }
+    }
+
+    private void fromDate(){
+        System.out.println("Set date:");
+        LocalDate setDate = inputDate();
+        LocalDate nextDate = null;
+        System.out.println("""
+                1. Day
+                2. Week
+                >>>\040""");
+        String  opt = sc.nextLine();
+        System.out.print("Number of days/ weeks from date: ");
+        int span = sc.nextInt();
+
+        if (opt.equals("1")){
+            nextDate = setDate.plusDays(span);
+        }else if (opt.equals("2")){
+            nextDate = setDate.plusWeeks(span);
+        }else{
+            System.out.println("Invalid choice");
+            getDateRange();
+        }
+
+        if(nextDate != null && validDateRange(nextDate)){
+            setDateRange(setDate, nextDate);
+        }
+    }
+
+    private void toDate(){
+        System.out.print("Set date: ");
+        LocalDate nextDate = inputDate();
+        LocalDate currentDate = null;
+        System.out.print("""
+                1. Day
+                2. Week
+                >>>\040""");
+        String  opt = sc.nextLine();
+        System.out.print("Number of days/ weeks to date: ");
+        int span = sc.nextInt();
+
+        if (opt.equals("1")){
+            currentDate = nextDate.plusDays(-span);
+        }else if (opt.equals("2")){
+            currentDate = nextDate.plusWeeks(-span);
+        }else{
+            System.out.println("Invalid choice");
+            getDateRange();
+        }
+
+        if(currentDate != null && validDateRange(currentDate)){
+            setDateRange(currentDate, nextDate);
+        }
+    }
+
+    private LocalDate inputDate(){
+        LocalDate userInput = LocalDate.parse(sc.nextLine(), df);
+        if(!validDateRange(userInput)){
+            System.out.print("Date out of range, re-enter date: ");
+            inputDate();
+        }
+        return userInput;
+    }
+
+    private boolean validDateRange(LocalDate date){
+        return !date.isBefore(startDate) && !date.isAfter(endDate);
+    }
+
+}
