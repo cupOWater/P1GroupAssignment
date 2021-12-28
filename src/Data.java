@@ -113,10 +113,10 @@ public class Data {
     }
 
     private void fromDate(){
-        System.out.println("Set date:");
+        System.out.print("Set date:");
         LocalDate setDate = inputDate();
         LocalDate nextDate = null;
-        System.out.println("""
+        System.out.print("""
                 1. Day
                 2. Week
                 >>>\040""");
