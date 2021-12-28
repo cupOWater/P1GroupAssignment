@@ -363,7 +363,7 @@ class Vaccinated extends Metric{
 
     @Override
     ArrayList<Integer> getData(Data data){
-        return data.peopleVacinated;
+        return data.peopleVaccinated;
     }
 }
 

@@ -13,23 +13,26 @@ public abstract class DisplayInterface {
 
     static public DisplayInterface setDisplayType(Summary sumDat){
         Scanner displayScanner = new Scanner(System.in);
+        System.out.println("-------------------");
         System.out.println("""
                 Please select a display option:
                 \t1. Tabular Display
                 \t2. Chart Display""");
         System.out.print(">>> ");
-        int choice = displayScanner.nextInt();
+        String choice = displayScanner.nextLine();
+        Main.checkExit(choice);
 
         // Will ask indefinitely until appropriate input is entered
         while (true){
-            if (choice == 1){
+            if (choice.equals("1")){
                 return new Table(sumDat);
-            } else if (choice == 2) {
+            } else if (choice.equals("2")) {
                 return new Chart(sumDat);
             }
             System.out.println("Invalid option, please choose again:");
             System.out.print(">>> ");
-            choice = displayScanner.nextInt();
+            choice = displayScanner.nextLine();
+            Main.checkExit(choice);
         }
     }
 
