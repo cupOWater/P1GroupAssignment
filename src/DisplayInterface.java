@@ -20,6 +20,7 @@ public abstract class DisplayInterface {
         System.out.print(">>> ");
         int choice = displayScanner.nextInt();
 
+        // Will ask indefinitely until appropriate input is entered
         while (true){
             if (choice == 1){
                 return new Table(sumDat);
@@ -46,7 +47,7 @@ class Table extends  DisplayInterface{
     public void displayData() {
         displayHeader();
         for (int i = 0; i < groupNo; i++){
-            System.out.printf("|%-" + cellWidth + "s|%-" + cellWidth + "s|\n", " " + sumDat.groups.get(i), " " + sumDat.groupsResult.get(i));
+            System.out.printf("|%-" + cellWidth + "s|%-" + cellWidth + "s|\n", " " + processDateRange(sumDat.groups.get(i)), " " + sumDat.groupsResult.get(i));
         }
     }
 
@@ -54,9 +55,27 @@ class Table extends  DisplayInterface{
         System.out.printf("|%-" + cellWidth + "s|%-" + cellWidth + "s|\n", " Range", " Value");
         System.out.println("-" + "-".repeat(cellWidth) + "-" + "-".repeat(cellWidth) + "-");
     }
+
+    private String processDateRange(String dates){
+        /* This method is used to process the date range string from Summary class
+        *  It is formatted "date1,date2" */
+
+        // Split the string into an array of strings includes start date and end date
+        String[] date = dates.split(",");
+
+        // If dates are same, return 1 date. Else return appropriate string.
+        if(date[0].equals(date[1])){
+            return date[0];
+        }
+        else{
+            return String.format("%s to %s", date[0], date[1]);
+        }
+
+    }
 }
 
 class Chart extends  DisplayInterface{
+    // The number of rows and columns for chart
     private final int rows = 24;
     private final int cols = 80;
 
@@ -66,10 +85,13 @@ class Chart extends  DisplayInterface{
 
     @Override
     public void displayData() {
-        // Displaying the data in chart form. Row 23 = 0// row 0 = max value
+        /* Displaying the data in chart form.
+         * Row 24 = x-axis. Row 23 = 0. Row 0 = max value. Column 0 = y-axis */
 
+        // Get an array of each group's result from Summary class
         ArrayList<Integer[]> valuePos = getValuePos(sumDat.groupsResult);
         for (int row = 0; row < rows; row++){
+            // First column is always pipe |
             System.out.print("|");
 
             // skip empty rows except last row
@@ -86,17 +108,21 @@ class Chart extends  DisplayInterface{
             }
 
             for (int col = 1; col < cols; col++){
+                // If last row, output all underscores _.
                 if (row == rows - 1){
                     System.out.print("_");
                     continue;
                 }
+
                 boolean found = false;
                 for (Integer[] position : valuePos){
+                    // Check index of row and col with the coordinate of value point.
                     if (row == position[0] && col == position [1]){
                         System.out.print("*");
                         found = true;
                     }
                 }
+                // If no value point is at coordinate, print space.
                 if (!found) {
                     System.out.print(" ");
                 }
@@ -107,14 +133,20 @@ class Chart extends  DisplayInterface{
     }
 
     private ArrayList<Integer[]> getValuePos(ArrayList<Integer> valList){
-        // get the index for row and column to display as chart
+        /*Get the coordinate of value points as index of row and column.
+        * The maximum value is retrieved and made the upper bound of chart.
+        * Position of other values are calculated with: ((current value * row width) / max value) */
+
+        // Data interval divides width of chart with size of array to ensure even distribution.
         int dataInterval = Math.round((cols - 1f) / (groupNo));
         int currentCol = Math.round(dataInterval / 2f);
         int maxValue = Collections.max(valList);
+        // This array will store the value of x and y in the chart
         ArrayList<Integer[]> posVal = new ArrayList<>();
 
         for (Integer val : valList){
-            // Since loop index start at 0 and the last row is used, minus 2 to row to get starting y-point of chart
+            // Since loop index start at 0 and the last row is used, minus 2 to row to get starting y-point of chart.
+            // Chart is drawn from top down, so row values are inverted.
             posVal.add(new Integer[]{(rows - 2) - Math.round((val * (rows - 2f)) / maxValue), currentCol});
             currentCol += dataInterval;
         }
