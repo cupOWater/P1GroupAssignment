@@ -47,6 +47,7 @@ public class Main {
 
     public static void checkExit(String text) {
         // This method to check whenever user enter "exit" in the program and then exit the program
+        text = text.trim();
         text = text.toLowerCase();
 
         if (text.equals("exit")) {

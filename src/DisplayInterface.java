@@ -16,10 +16,11 @@ public abstract class DisplayInterface {
         System.out.println("-------------------");
         System.out.println("""
                 Please select a display option:
-                \t1. Tabular Display
-                \t2. Chart Display""");
+                \t1) Tabular Display
+                \t2) Chart Display""");
         System.out.print(">>> ");
         String choice = displayScanner.nextLine();
+        choice = choice.trim();
         Main.checkExit(choice);
 
         // Will ask indefinitely until appropriate input is entered
@@ -32,6 +33,7 @@ public abstract class DisplayInterface {
             System.out.println("Invalid option, please choose again:");
             System.out.print(">>> ");
             choice = displayScanner.nextLine();
+            choice = choice.trim();
             Main.checkExit(choice);
         }
     }

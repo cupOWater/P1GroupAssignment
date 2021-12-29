@@ -45,7 +45,7 @@ public class Summary {
         return group;
     }
 
-    public void setGroup() {
+    private void setGroup() {
         // This method to ask and get input from user to assign a type of group to Summary instance
 
         String selection;
@@ -58,6 +58,7 @@ public class Summary {
                   3) Number of days you want each group to have.""");
         System.out.print(">>> ");
         selection = sc.nextLine();
+        selection = selection.trim();
 
         while (true) {
             if (intArrayCheck(selection, new int[]{1, 2, 3})) {
@@ -77,6 +78,7 @@ public class Summary {
                           3) Number of days you want each group to have.""");
                 System.out.print(">>> ");
                 selection = sc.nextLine();
+                selection = selection.trim();
             }
         }
     }
@@ -86,7 +88,7 @@ public class Summary {
         return metric;
     }
 
-    public void setMetric() {
+    private void setMetric() {
         // This method to ask and get input from user to assign a type of metric to Summary instance
         String selection;
         Scanner sc = new Scanner(System.in);
@@ -98,6 +100,7 @@ public class Summary {
                   3) People Vaccinated""");
         System.out.print(">>> ");
         selection = sc.nextLine();
+        selection = selection.trim();
 
         while (true) {
             if (intArrayCheck(selection, new int[]{1, 2, 3})) {
@@ -123,6 +126,7 @@ public class Summary {
                           3) People Vaccinated""");
                 System.out.print(">>> ");
                 selection = sc.nextLine();
+                selection = selection.trim();
             }
         }
     }
@@ -132,7 +136,7 @@ public class Summary {
         return resultType;
     }
 
-    public void setResultType() {
+    private void setResultType() {
         // This method to ask and get input from user to assign a type of resultType to Summary instance
         String selection;
         Scanner sc = new Scanner(System.in);
@@ -143,6 +147,7 @@ public class Summary {
                   2) Up to""");
         System.out.print(">>> ");
         selection = sc.nextLine();
+        selection = selection.trim();
 
         while (true) {
             if (intArrayCheck(selection, new int[]{1, 2})) {
@@ -159,6 +164,7 @@ public class Summary {
                   2) Up to""");
                 System.out.print(">>> ");
                 selection = sc.nextLine();
+                selection = selection.trim();
             }
         }
     }
@@ -173,7 +179,7 @@ public class Summary {
         }
     }
 
-    static boolean intArrayCheck(String number, int[] wanted){
+    private static boolean intArrayCheck(String number, int[] wanted){
         // This method to check if the user's input can be parsed into int and
         // if it is existed in a list of what we want
         if (!intInputCheck(number)) {
@@ -259,6 +265,7 @@ class NumberOfGroups extends Group {
         // This method to check the user's input number of groups to catch exceptions
         Scanner sc = new Scanner(System.in);
         String groupsNum = sc.nextLine();
+        groupsNum = groupsNum.trim();
 
         // This while loop to check exceptions and ask user to input correctly
         while (true) {
@@ -298,6 +305,7 @@ class NumberOfDays extends Group {
         // This method to check the user's input number of days to catch exceptions
         Scanner sc = new Scanner(System.in);
         String days = sc.nextLine();
+        days = days.trim();
 
         // This while loop to check exceptions and ask user to input number of days correctly
         while (true){
@@ -404,7 +412,7 @@ class NewTotal extends ResultType {
         else{
             int start = 0, end = 0;
             for (int i = 0; i < data.date.size(); i++) {
-                if (data.date.get(i).isEqual(groupStartDate))
+                if (data.date.get(i).isEqual(groupStartDate.minusDays(1)))
                     start = array.get(i);
                 else if (data.date.get(i).isEqual(groupEndDate))
                     end = array.get(i);
