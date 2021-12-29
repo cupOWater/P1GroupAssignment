@@ -317,7 +317,7 @@ class NumberOfDays extends Group {
                 System.out.println("Number of days can not be less than 1. Please try again:");
             } else if (Integer.parseInt(days) > data.range.size()) {
                 System.out.println("-------------------");
-                System.out.printf("Number of groups cannot be bigger than the days in time range %s. " +
+                System.out.printf("Number of days cannot be bigger than the days in time range %s. " +
                         "Please try again: \n", data.range.size());
             } else if (data.range.size() % Integer.parseInt(days) != 0) {
                 System.out.println("-------------------");
