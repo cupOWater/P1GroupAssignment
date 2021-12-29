@@ -25,53 +25,65 @@ public class Data {
     }
 
     private void readData(String filePath) throws IOException {
-        BufferedReader csvReader;
-
-        System.out.println("-------------------");
-        System.out.println("Enter name of country or continent: ");
-        String location = sc.nextLine();
-        Main.checkExit(location);
-
-        csvReader = new BufferedReader(new FileReader(filePath));
         boolean found = false;
-        int currentVacc = 0;
-        String row = csvReader.readLine();
+        while (true){
+            BufferedReader csvReader;
+            csvReader = new BufferedReader(new FileReader(filePath));
+            System.out.println("-------------------");
+            System.out.print("Enter name of country or continent: ");
+            String location = formatLocationInput(sc.nextLine());
+            Main.checkExit(location);
+            int currentVacc = 0;
 
+            String row = csvReader.readLine();
+            while(row != null){
+                String[] rawDat = row.split(",");
 
-        while(row != null){
-            String[] rawDat = row.split(",");
+                if (rawDat[2].equals(location)){
+                    found = true;
+                    date.add(LocalDate.parse(rawDat[3], df));
 
-            if (rawDat[2].equals(location)){
-                found = true;
-                date.add(LocalDate.parse(rawDat[3], df));
+                    try {
+                        newCase.add(Integer.parseInt(rawDat[4]));
+                    }
+                    catch (NumberFormatException e){
+                        newCase.add(0);
+                    }
 
-                try {
-                    newCase.add(Integer.parseInt(rawDat[4]));
+                    try {
+                        newDeath.add(Integer.parseInt(rawDat[5]));
+                    }
+                    catch (NumberFormatException e){
+                        newDeath.add(0);
+                    }
+
+                    if(!rawDat[6].equals("")){
+                        currentVacc = Integer.parseInt(rawDat[6]);
+                    }
+                    peopleVaccinated.add(currentVacc);
                 }
-                catch (NumberFormatException e){
-                    newCase.add(0);
-                }
-
-                try {
-                    newDeath.add(Integer.parseInt(rawDat[5]));
-                }
-                catch (NumberFormatException e){
-                    newDeath.add(0);
-                }
-
-                if(!rawDat[6].equals("")){
-                    currentVacc = Integer.parseInt(rawDat[6]);
-                }
-                peopleVaccinated.add(currentVacc);
+                row = csvReader.readLine();
             }
-            row = csvReader.readLine();
+            if (found){
+                csvReader.close();
+                break;
+            } else{
+                System.out.println("Country not found");
+            }
         }
 
-        if (!found){
-            System.out.println("Country/ Continent not found");
-            readData(filePath);
+    }
+
+    private String formatLocationInput(String location){
+        location = location.trim();
+        String[] tokens = location.split(" ");
+        String formatted = "";
+        for (String i : tokens){
+            String first = i.substring(0, 1);
+            String remain = i.substring(1);
+            formatted += first.toUpperCase() + remain.toLowerCase() + " ";
         }
-        csvReader.close();
+        return formatted.trim();
     }
 
     private void getDateRange(){
@@ -83,31 +95,38 @@ public class Data {
                 \t2. Choosing number of days/ weeks from a date
                 \t3. Choosing number of days/ weeks to a date
                 >>>\040""", startDate.format(df), endDate.format(df));
-        String choice = sc.nextLine();
-        Main.checkExit(choice);
 
-        switch (choice) {
-            case "1" ->
-                    {
-                        System.out.println("-------------------");
-                        System.out.print("Start date: ");
-                        LocalDate startDate = inputDate();
 
-                        System.out.println("-------------------");
-                        System.out.print("End date: ");
-                        LocalDate endDate = inputDate();
-                        if (startDate.isAfter(endDate)){
-                            System.out.println("Start date is after end date");
-                            getDateRange();
-                        }
-                        setDateRange(startDate, endDate);
+        label:
+        while (true){
+            String choice = sc.nextLine();
+            Main.checkExit(choice);
+            switch (choice) {
+                case "1":
+                    System.out.println("-------------------");
+                    System.out.print("Start date: ");
+                    LocalDate startDate = inputDate();
+
+                    System.out.println("-------------------");
+                    System.out.print("End date: ");
+                    LocalDate endDate = inputDate();
+                    while (startDate.isAfter(endDate)) {
+                        System.out.print("Start date is after end date, re-enter date: ");
+                        endDate = inputDate();
                     }
-            case "2" -> fromDate();
-            case "3" -> toDate();
-            default -> {
-                System.out.println("Invalid choice");
-                getDateRange();
+                    setDateRange(startDate, endDate);
+                    break label;
+                case "2":
+                    fromDate();
+                    break label;
+                case "3":
+                    toDate();
+                    break label;
+                default:
+                    System.out.print("Invalid choice, re-enter choice: ");
+                    break;
             }
+
         }
 
     }
@@ -123,37 +142,57 @@ public class Data {
         System.out.println("-------------------");
         System.out.print("Set date:");
         LocalDate setDate = inputDate();
-        LocalDate nextDate = null;
-        System.out.print("""
-                1. Day
-                2. Week
-                >>>\040""");
-        String  opt = sc.nextLine();
-        Main.checkExit(opt);
+        LocalDate nextDate;
+        String opt = getDayOrWeek();
 
         System.out.println("-------------------");
         System.out.print("Number of days/ weeks from date: ");
+
         int span = sc.nextInt();
-
-        if (opt.equals("1")){
-            nextDate = setDate.plusDays(span);
-        }else if (opt.equals("2")){
-            nextDate = setDate.plusWeeks(span);
-        }else{
-            System.out.println("Invalid choice");
-            getDateRange();
+        while(true){
+            if (opt.equals("1")){
+                nextDate = setDate.plusDays(span);
+            }else{
+                nextDate = setDate.plusWeeks(span);
+            }
+            if(validDateRange(nextDate)){
+                break;
+            }
+            System.out.print("Date out of range, re-enter date: ");
+            span = sc.nextInt();
         }
-
-        if(nextDate != null && validDateRange(nextDate)){
-            setDateRange(setDate, nextDate);
-        }
+        setDateRange(setDate, nextDate);
     }
 
     private void toDate(){
         System.out.println("-------------------");
         System.out.print("Set date: ");
         LocalDate nextDate = inputDate();
-        LocalDate currentDate = null;
+        LocalDate currentDate;
+        String opt = getDayOrWeek();
+
+        System.out.println("-------------------");
+        System.out.print("Number of days/ weeks to date: ");
+
+        int span = sc.nextInt();
+        while(true){
+            if (opt.equals("1")){
+                currentDate = nextDate.plusDays(-span);
+            }else {
+                currentDate = nextDate.plusWeeks(-span);
+            }
+            if(validDateRange(currentDate)){
+                break;
+            }
+            System.out.print("Date out of range, re-enter date: ");
+            span = sc.nextInt();
+        }
+
+        setDateRange(currentDate, nextDate);
+
+    }
+
+    private String getDayOrWeek(){
         System.out.print("""
                 1. Day
                 2. Week
@@ -161,30 +200,42 @@ public class Data {
         String  opt = sc.nextLine();
         Main.checkExit(opt);
 
-        System.out.println("-------------------");
-        System.out.print("Number of days/ weeks to date: ");
-        int span = sc.nextInt();
-
-        if (opt.equals("1")){
-            currentDate = nextDate.plusDays(-span);
-        }else if (opt.equals("2")){
-            currentDate = nextDate.plusWeeks(-span);
-        }else{
-            System.out.println("Invalid choice");
-            getDateRange();
+        while (!opt.equals("1") && !opt.equals("2")){
+            System.out.print("""
+                    Invalid choice, re-enter value
+                    >>>\040""");
+            opt = sc.nextLine();
+            Main.checkExit(opt);
         }
 
-        if(currentDate != null && validDateRange(currentDate)){
-            setDateRange(currentDate, nextDate);
-        }
+        return opt;
     }
 
     private LocalDate inputDate(){
-        LocalDate userInput = LocalDate.parse(sc.nextLine(), df);
-        if(!validDateRange(userInput)){
-            System.out.print("Date out of range, re-enter date: ");
-            inputDate();
+        String userInputString;
+        LocalDate userInput = null;
+
+        boolean valid = false;
+
+        while (!valid){
+            userInputString = sc.nextLine();
+            try {
+                userInput = LocalDate.parse(userInputString, df);
+            }catch (DateTimeParseException e){
+                System.out.print("Invalid date input, re-enter date: ");
+                continue;
+            }
+            if(!userInputString.equals(userInput.format(df))){
+                System.out.print("Invalid date input, re-enter date: ");
+                continue;
+            }
+            if(!validDateRange(userInput)){
+                System.out.print("Date out of range, re-enter date: ");
+                continue;
+            }
+            valid = true;
         }
+
         return userInput;
     }
 

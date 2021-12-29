@@ -3,7 +3,6 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-
         Summary sum = new Summary();
 
         System.out.println("""
