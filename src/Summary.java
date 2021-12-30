@@ -16,7 +16,7 @@ public class Summary {
 
     static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
-    public static Summary summaryProcessor(Data data, Summary summary){
+    public static Summary summaryProcessor(Data data){
         // This method to combine all the steps of summary process
         Summary newSummary = new Summary();
         newSummary.setGroup();
@@ -266,6 +266,7 @@ class NumberOfGroups extends Group {
         Scanner sc = new Scanner(System.in);
         String groupsNum = sc.nextLine();
         groupsNum = groupsNum.trim();
+        Main.checkExit(groupsNum);
 
         // This while loop to check exceptions and ask user to input correctly
         while (true) {
@@ -306,6 +307,7 @@ class NumberOfDays extends Group {
         Scanner sc = new Scanner(System.in);
         String days = sc.nextLine();
         days = days.trim();
+        Main.checkExit(days);
 
         // This while loop to check exceptions and ask user to input number of days correctly
         while (true){
@@ -339,7 +341,6 @@ class NumberOfDays extends Group {
 
     @Override
     void groupDetail(Summary summary,Data data){
-        Scanner sc = new Scanner(System.in);
         System.out.println("-------------------");
         System.out.println("Enter a number of days you want for each group: ");
         System.out.print(">>> ");
@@ -430,22 +431,19 @@ class UpTo extends ResultType {
                        Summary sum) {
         // This method will calculate the data in the way of up to the end date of a group
 
+        int result = 0;
         if (!sum.getIsAccumulated()) {
-            int result = 0;
             for (int i = 0; i < data.date.size(); i++) {
                 if (data.date.get(i).isEqual(groupEndDate) || data.date.get(i).isBefore(groupEndDate)) {
                     result += array.get(i);
                 }
             }
-            return result;
         } else {
-            int result = 0;
             for (int i = 0; i < data.date.size(); i++) {
                 if (data.date.get(i).isEqual(groupEndDate))
                     result = array.get(i);
             }
-            return result;
         }
+        return result;
     }
 }
-

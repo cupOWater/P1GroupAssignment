@@ -3,8 +3,6 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        Summary sum = new Summary();
-
         System.out.println("""
                                 _Covid data processing and analytics tool_
                                 -------------------------
@@ -12,11 +10,11 @@ public class Main {
         System.out.println();
 
         while (true) {
-
+            // Main program
             Scanner sc = new Scanner(System.in);
 
             Data data = new Data("covid-data.csv");
-            sum = Summary.summaryProcessor(data, sum);
+            Summary sum = Summary.summaryProcessor(data);
             DisplayInterface display = DisplayInterface.setDisplayType(sum);
             display.displayData();
 
