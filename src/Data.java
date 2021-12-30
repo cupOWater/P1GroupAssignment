@@ -7,11 +7,13 @@ import java.time.format.*;
 import java.util.ArrayList;  
 
 public class Data {
+    // Set of variables required for Summary class
     ArrayList<LocalDate> range = new ArrayList<>();
     ArrayList<LocalDate> date = new ArrayList<>();
     ArrayList<Integer> newCase = new ArrayList<>();
     ArrayList<Integer> newDeath = new ArrayList<>();
     ArrayList<Integer> peopleVaccinated = new ArrayList<>();
+
     DateTimeFormatter df = DateTimeFormatter.ofPattern("M/d/yyyy"); // date format for reading file
     DateTimeFormatter dfInput = DateTimeFormatter.ofPattern("MM/dd/yyyy"); // date format for user input
 
@@ -19,6 +21,7 @@ public class Data {
     LocalDate endDate;
     Scanner sc = new Scanner(System.in);
 
+    // Constructor required a file path to create a Data object
     public Data(String filePath) throws IOException {
         readData(filePath);
         this.startDate = date.get(0);
@@ -28,6 +31,7 @@ public class Data {
 
     private void readData(String filePath) throws IOException {
         boolean found = false;
+        // Loop until exit check or until a country/ continent is found
         while (true){
             BufferedReader csvReader;
             csvReader = new BufferedReader(new FileReader(filePath));
@@ -35,9 +39,12 @@ public class Data {
             System.out.print("Enter name of country or continent: ");
             String location = formatLocationInput(sc.nextLine());
             Main.checkExit(location);
-            int currentVacc = 0;
+            int currentVacc = 0; // Vaccination value is accumulated, so the initial value should be 0
 
             String row = csvReader.readLine();
+            // While not end of file
+            // Read data from .csv file and add the appropriate column data to the right variable
+
             while(row != null){
                 String[] rawDat = row.split(",");
 
@@ -45,6 +52,7 @@ public class Data {
                     found = true;
                     date.add(LocalDate.parse(rawDat[3], df));
 
+                    // Math.max here to handle negative values, since negative is smaller than 0, return 0
                     try {
                         newCase.add(Math.max(Integer.parseInt(rawDat[4]), 0));
                     }
@@ -59,6 +67,7 @@ public class Data {
                         newDeath.add(0);
                     }
 
+                    // If a new vaccinated value is encountered, it will be the new currentVacc
                     if(!rawDat[6].equals("")){
                         currentVacc = Integer.parseInt(rawDat[6]);
                     }
@@ -76,18 +85,21 @@ public class Data {
     }
 
     private String formatLocationInput(String location){
-        location = location.trim();
+        // This function is for formatting user's location input
+        // It returns same string with first character of each letter capitalized and the rest lowercase
+        location = location.trim(); // remove any extra white spaces
         String[] tokens = location.split(" ");
-        String formatted = "";
+        StringBuilder formatted = new StringBuilder();
         for (String i : tokens){
             String first = i.substring(0, 1);
             String remain = i.substring(1);
-            formatted += first.toUpperCase() + remain.toLowerCase() + " ";
+            formatted.append(first.toUpperCase()).append(remain.toLowerCase()).append(" ");
         }
-        return formatted.trim();
+        return formatted.toString().trim();
     }
 
     private void getDateRange(){
+        // Function to get the values for the Arraylist range variable
 
         System.out.println("-------------------");
         System.out.printf("""
@@ -98,7 +110,7 @@ public class Data {
                 >>>\040""", startDate.format(dfInput), endDate.format(dfInput));
 
 
-        label:
+        label: //To break out of while loop if switch case is appropriate
         while (true){
             String choice = sc.nextLine();
             choice = choice.trim();
@@ -114,7 +126,7 @@ public class Data {
                     LocalDate endDate = inputDate();
                     while (startDate.isAfter(endDate)) {
                         System.out.print("Start date is after end date, re-enter date (MM/DD/YYYY): ");
-                        endDate = inputDate();
+                        endDate = inputDate(); // Let user re-enter new end date if it is before start date
                     }
                     setDateRange(startDate, endDate);
                     break label;
@@ -134,6 +146,7 @@ public class Data {
     }
 
     private void setDateRange(LocalDate start, LocalDate end){
+        // Function to add the dates between 2 dates into variable range
         while (!start.equals(end.plusDays(1))){
             range.add(start);
             start = start.plusDays(1);
@@ -141,6 +154,7 @@ public class Data {
     }
 
     private void fromDate(){
+        // Function to get the dates from an initial set date
         System.out.println("-------------------");
         System.out.print("Set date (MM/DD/YYYY): ");
         LocalDate setDate = inputDate();
@@ -153,12 +167,12 @@ public class Data {
         int span = numberInput();
         while(true){
             if (opt.equals("1")){
-                nextDate = setDate.plusDays(span);
+                nextDate = setDate.plusDays(span); //Get the end date after set amount of days
             }else{
-                nextDate = setDate.plusWeeks(span);
+                nextDate = setDate.plusWeeks(span);//Get the end date after set amount of weeks
             }
             if(validDateRange(nextDate)){
-                break;
+                break; //If the date range is valid, break loop
             }
             System.out.print("Out of range, re-enter number of days/ weeks from date: ");
             span = numberInput();
@@ -179,9 +193,9 @@ public class Data {
         int span = numberInput();
         while(true){
             if (opt.equals("1")){
-                currentDate = nextDate.plusDays(-span);
+                currentDate = nextDate.plusDays(-span); //Get the start date after set amount of days to set date
             }else {
-                currentDate = nextDate.plusWeeks(-span);
+                currentDate = nextDate.plusWeeks(-span); //Get the start date after set amount of weeks to set date
             }
             if(validDateRange(currentDate)){
                 break;
@@ -195,6 +209,7 @@ public class Data {
     }
 
     private String getDayOrWeek(){
+        // Prompt user to get the option of set days or weeks
         System.out.print("""
                 1) Day
                 2) Week
@@ -226,17 +241,17 @@ public class Data {
             userInputString = sc.nextLine();
             userInputString = userInputString.trim();
             Main.checkExit(userInputString);
-            try {
+            try { // Check if input is an appropriate date
                 userInput = LocalDate.parse(userInputString, df);
             }catch (DateTimeParseException e){
                 System.out.print("Invalid date input, re-enter date (MM/DD/YYYY): ");
                 continue;
             }
-            if(!userInputString.equals(userInput.format(dfInput))){
+            if(!userInputString.equals(userInput.format(dfInput))){ // Check if the date inputted is in the appropriate format
                 System.out.print("Invalid date input or wrong format, re-enter date (MM/DD/YYYY): ");
                 continue;
             }
-            if(!validDateRange(userInput)){
+            if(!validDateRange(userInput)){ // Check if the date is within the date range chosen by location
                 System.out.print("Date out of range, re-enter date (MM/DD/YYYY): ");
                 continue;
             }
@@ -247,10 +262,12 @@ public class Data {
     }
 
     private boolean validDateRange(LocalDate date){
+        // Function to check if a date is between the date range of a certain location
         return !date.isBefore(startDate) && !date.isAfter(endDate);
     }
 
     private Integer numberInput() {
+        // Check user input for an integer
         Scanner sc = new Scanner(System.in);
         String str = "";
         boolean flag = false;
