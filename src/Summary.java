@@ -59,6 +59,7 @@ public class Summary {
         System.out.print(">>> ");
         selection = sc.nextLine();
         selection = selection.trim();
+        Main.checkExit(selection);
 
         while (true) {
             if (intArrayCheck(selection, new int[]{1, 2, 3})) {
@@ -79,6 +80,7 @@ public class Summary {
                 System.out.print(">>> ");
                 selection = sc.nextLine();
                 selection = selection.trim();
+                Main.checkExit(selection);
             }
         }
     }
@@ -101,6 +103,7 @@ public class Summary {
         System.out.print(">>> ");
         selection = sc.nextLine();
         selection = selection.trim();
+        Main.checkExit(selection);
 
         while (true) {
             if (intArrayCheck(selection, new int[]{1, 2, 3})) {
@@ -127,6 +130,7 @@ public class Summary {
                 System.out.print(">>> ");
                 selection = sc.nextLine();
                 selection = selection.trim();
+                Main.checkExit(selection);
             }
         }
     }
@@ -148,6 +152,7 @@ public class Summary {
         System.out.print(">>> ");
         selection = sc.nextLine();
         selection = selection.trim();
+        Main.checkExit(selection);
 
         while (true) {
             if (intArrayCheck(selection, new int[]{1, 2})) {
@@ -165,6 +170,7 @@ public class Summary {
                 System.out.print(">>> ");
                 selection = sc.nextLine();
                 selection = selection.trim();
+                Main.checkExit(selection);
             }
         }
     }
