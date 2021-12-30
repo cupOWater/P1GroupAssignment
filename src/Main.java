@@ -34,7 +34,7 @@ public class Main {
                 if (isContinue.equals("y") || isContinue.equals("n"))
                     break;
 
-                System.out.print("Input Y/N only, please try again");
+                System.out.println("Input Y/N only, please try again");
 
             }
             if (isContinue.equals("n")) {
