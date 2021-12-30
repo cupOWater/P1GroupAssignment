@@ -28,6 +28,10 @@ public abstract class DisplayInterface {
             if (choice.equals("1")){
                 return new Table(sumDat);
             } else if (choice.equals("2")) {
+                if(sumDat.groupsResult.size() > 79){
+                    System.out.println("Chart cannot have more than 79 values");
+                    Main.checkExit("exit");
+                }
                 return new Chart(sumDat);
             }
             System.out.println("Invalid option, please choose again:");
@@ -95,6 +99,8 @@ class Chart extends  DisplayInterface{
 
         // Get an array of each group's result from Summary class
         ArrayList<Integer[]> valuePos = getValuePos(sumDat.groupsResult);
+
+
         for (int row = 0; row < rows; row++){
             // First column is always pipe |
             System.out.print("|");
