@@ -225,6 +225,7 @@ public class Data {
         while (!valid){
             userInputString = sc.nextLine();
             userInputString = userInputString.trim();
+            Main.checkExit(userInputString);
             try {
                 userInput = LocalDate.parse(userInputString, df);
             }catch (DateTimeParseException e){
@@ -257,6 +258,7 @@ public class Data {
         while (!flag) {
             str = sc.nextLine();
             str = str.trim();
+            Main.checkExit(str);
 
             try {
                 Integer.parseInt(str);
