@@ -29,8 +29,8 @@ public abstract class DisplayInterface {
                 return new Table(sumDat);
             } else if (choice.equals("2")) {
                 if(sumDat.groupsResult.size() > 79){
-                    System.out.println("Chart cannot have more than 79 values");
-                    Main.checkExit("exit");
+                    System.out.println("Chart cannot have more than 79 values, display Table instead");
+                    return new Table(sumDat);
                 }
                 return new Chart(sumDat);
             }
