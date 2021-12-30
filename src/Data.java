@@ -46,14 +46,14 @@ public class Data {
                     date.add(LocalDate.parse(rawDat[3], df));
 
                     try {
-                        newCase.add(Integer.parseInt(rawDat[4]));
+                        newCase.add(Math.max(Integer.parseInt(rawDat[4]), 0));
                     }
                     catch (NumberFormatException e){
                         newCase.add(0);
                     }
 
                     try {
-                        newDeath.add(Integer.parseInt(rawDat[5]));
+                        newDeath.add(Math.max(Integer.parseInt(rawDat[5]), 0));
                     }
                     catch (NumberFormatException e){
                         newDeath.add(0);
