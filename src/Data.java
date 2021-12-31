@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.*;
 import java.time.*;
 import java.time.format.*;
-import java.util.ArrayList;  
+import java.util.ArrayList;
 
 public class Data {
     // Set of variables required for Summary class
@@ -26,6 +26,7 @@ public class Data {
         readData(filePath);
         this.startDate = date.get(0);
         this.endDate = date.get(date.size() - 1);
+        fillMissingDate(); // fill in the missing dates after getting all the dates from .csv
         getDateRange();
     }
 
@@ -96,6 +97,28 @@ public class Data {
             formatted.append(first.toUpperCase()).append(remain.toLowerCase()).append(" ");
         }
         return formatted.toString().trim();
+    }
+
+    private void fillMissingDate(){
+        // To fill in some date gaps in the .csv file
+
+        ArrayList<LocalDate> fullDates = new ArrayList<>();
+        LocalDate currentDate = startDate;
+        while (!currentDate.equals(endDate.plusDays(1))){
+            fullDates.add(currentDate);
+            currentDate = currentDate.plusDays(1);
+        }
+
+        for (LocalDate fullDate : fullDates){
+            int index = fullDates.indexOf(fullDate);
+            if(!date.get(index).equals(fullDate)){
+                date.add(index, fullDate);
+                newCase.add(index, 0);
+                newDeath.add(index, 0);
+                peopleVaccinated.add(index, peopleVaccinated.get(index - 1)); // get vaccinated value from the day previous
+            }
+        }
+
     }
 
     private void getDateRange(){
