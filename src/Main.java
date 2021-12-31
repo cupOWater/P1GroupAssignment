@@ -4,8 +4,8 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws IOException {
         System.out.println("""
-                                _Covid data processing and analytics tool_
-                                -------------------------
+                                  __Covid data processing and analytics tool__
+                                ------------------------------------------------
                                 Enter "exit" anytime if you want to exit the program.""");
         System.out.println();
 
@@ -23,7 +23,7 @@ public class Main {
             // Asking for continue at the end
             while (true) {
                 System.out.println("-------------------------");
-                System.out.println("Do you want to continue(Y/N)? ");
+                System.out.println("Do you want to continue (Y/N)? ");
                 System.out.print(">>> ");
                 isContinue = sc.nextLine();
                 checkExit(isContinue);
@@ -50,7 +50,7 @@ public class Main {
 
         if (text.equals("exit")) {
             System.out.println("-------------------------");
-            System.out.println("Thank you for using.");
+            System.out.println("Thank you for using. see you again!");
             System.exit(0);
         }
     }
