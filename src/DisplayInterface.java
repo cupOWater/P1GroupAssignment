@@ -149,8 +149,10 @@ class Chart extends  DisplayInterface{
         * Position of other values are calculated with: ((current value * row width) / max value) */
 
         // Data interval divides width of chart with size of array to ensure even distribution.
-        int dataInterval = Math.round((cols - 1f) / (groupNo));
-        int currentCol = Math.round(dataInterval / 2f);
+        int dataInterval = (int) Math.floor((cols - 1f) / (groupNo));
+        int maxWidth = 1 + (dataInterval * (groupNo - 1)); // Number of columns from first point to last point
+        int currentCol = (int) Math.floor(((cols - 1f) - maxWidth) / 2) + 1; // Center the chart using max width
+
         int maxValue = Collections.max(valList);
         // This array will store the value of x and y in the chart
         ArrayList<Integer[]> posVal = new ArrayList<>();
